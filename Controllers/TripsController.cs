@@ -254,7 +254,31 @@ public class TripsController(TripsContext _context) : Controller
             }
             return View(trip);
         }
+
+    [HttpPost]
+        public async Task<IActionResult> Leave(int id)
+        {
+            var trip = await _context.Trips.FindAsync(id);
+            if (trip == null)
+            {
+                return NotFound();
+            }
+
+            var userName = User.Identity?.Name;
+            if (userName == null)
+            {
+                return NotFound();
+            }
+
+            if (trip.participants != null && trip.participants.Contains(userName))
+            {
+                trip.participants = trip.participants.Where(p => p != userName).ToList();
+                _context.Entry(trip).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
     }
-
-
 }
