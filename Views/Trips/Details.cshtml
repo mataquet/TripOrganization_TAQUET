@@ -1,0 +1,129 @@
+﻿@model TripOrganization_TAQUET.Models.Trips
+@{
+    ViewData["Title"] = "Détails du voyage";
+    var isOwner = User.Identity?.IsAuthenticated == true && Model.owners?.Contains(User.Identity.Name) == true;
+    var isParticipant = User.Identity?.IsAuthenticated == true && Model.participants?.Contains(User.Identity.Name) == true;
+}
+
+<div class="container">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                @if (!string.IsNullOrEmpty(Model.Image))
+                {
+                    <img src="@Model.Image" class="card-img-top" alt="@Model.Name" style="height: 300px; object-fit: cover;">
+                }
+                <div class="card-body">
+                    <h1 class="card-title">@Model.Name</h1>
+                    <p class="card-text">@Model.Description</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Departure :</strong> @Model.Departure, le @Model.DepartureDate.ToString("dd/MM/yyyy HH:mm")</li>
+                    <li class="list-group-item"><strong>Destination :</strong> @Model.Arrival, le @Model.ArrivalDate.ToString("dd/MM/yyyy HH:mm")</li>
+                    <li class="list-group-item"><strong>Price :</strong> @Model.Price €</li>
+                    <li class="list-group-item">
+                        <strong>Participants :</strong> @(Model.participants?.Count ?? 0) / @Model.Capacity
+                        <div class="progress mt-2">
+                            <div class="progress-bar" role="progressbar" style="width: @(((Model.participants?.Count ?? 0) * 100) / Model.Capacity)%;"
+                                 aria-valuenow="@(Model.participants?.Count ?? 0)" aria-valuemin="0" aria-valuemax="@Model.Capacity">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="UpcomingTrips" class="btn btn-outline-secondary">Back to the list.</a>
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            if (isParticipant)
+                            {
+                                <form asp-action="Leave" asp-route-id="@Model.Id" method="post">
+                                    <button type="submit" class="btn btn-outline-danger">Unsubscribe</button>
+                                </form>
+                            }
+                            else if (Model.participants?.Count < Model.Capacity)
+                            {
+                                <form asp-action="Join" asp-route-id="@Model.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-success">Join</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button class="btn btn-secondary" disabled>Trip is full.</button>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            @if (isOwner)
+            {
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Adminitrator actions.</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Edit trip</a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Delete trip</a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Owners</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var owner in Model.owners ?? new List<string>())
+                    {
+                        <li class="list-group-item">@owner</li>
+                    }
+                </ul>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Participants (@(Model.participants?.Count ?? 0))</h5>
+                </div>
+                @if (Model.participants?.Any() == true)
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var participant in Model.participants)
+                        {
+                            <li class="list-group-item">@participant</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="card-body">
+                        <p class="card-text">No participants registered yet.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

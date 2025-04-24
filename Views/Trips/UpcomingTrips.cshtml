@@ -1,0 +1,90 @@
+﻿@model IEnumerable<TripOrganization_TAQUET.Models.Trips>
+@{
+    ViewData["Title"] = "Upcoming trips";
+}
+
+<div class="container">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    <div class="row mb-3">
+        <div class="col">
+            <p>Here is the list of the upcoming trips you can join.</p>
+        </div>
+        <div class="col-auto">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus"></i> Create a new trip
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var trip in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        @if (!string.IsNullOrEmpty(trip.Image))
+                        {
+                            <img src="@trip.Image" class="card-img-top" alt="@trip.Name" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-light text-center py-5" style="height: 200px;">
+                                <i class="bi bi-image text-secondary" style="font-size: 4rem;"></i>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@trip.Name</h5>
+                            <p class="card-text">@(trip.Description.Length > 100 ? trip.Description.Substring(0, 97) + "..." : trip.Description)</p>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Departure:</strong> @trip.Departure, le @trip.DepartureDate.ToString("dd/MM/yyyy")</li>
+                            <li class="list-group-item"><strong>Destination:</strong> @trip.Arrival, le @trip.ArrivalDate.ToString("dd/MM/yyyy")</li>
+                            <li class="list-group-item"><strong>Price:</strong> @trip.Price €</li>
+                            <li class="list-group-item"><strong>Participants:</strong> @(trip.participants?.Count ?? 0)</li>
+                        </ul>
+                        <div class="card-footer d-flex justify-content-between bg-white">
+                            <a asp-action="Details" asp-route-id="@trip.Id" class="btn btn-sm btn-outline-primary">Details</a>
+
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                var username = User.Identity.Name;
+                                var id = trip.Id; 
+                                if (trip.participants != null && trip.participants.Contains(username))
+                                {
+                                    <form asp-action="Leave" asp-route-id="@id" method="post">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Unsubscribe</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    
+
+                                    <form asp-action="Join" asp-route-id="@trip.Id" method="post">
+                                        <button type="submit" class="btn btn-sm btn-success">Subscribe</button>
+                                    </form>
+                                }
+                            }
+                            else
+                            {
+                                <a asp-controller="User" asp-action="Login" class="btn btn-sm btn-outline-secondary">Connexion required</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            There is no link to upcoming trip in the destination, add this code in the navbar section of your _Layout.cshtml :
+
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Trips" asp-action="Upcoming">Upcoming trips</a>
+            </li>
+        </div>
+        <p>No upcoming trip for the moment. Come back later !</p>
+    }
+</div>

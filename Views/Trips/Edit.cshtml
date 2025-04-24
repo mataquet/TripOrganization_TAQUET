@@ -1,0 +1,107 @@
+﻿@model TripOrganization_TAQUET.Models.Trips
+
+@{
+	ViewData["Title"] = "Trip edition";
+}
+
+<div class="container">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-action="Edit" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="participants" />
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Journey's name'</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Departure" class="form-label">Departure</label>
+                                <input asp-for="Departure" class="form-control" />
+                                <span asp-validation-for="Departure" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="DepartureDate" class="form-label">Departure Date</label>
+                                <input asp-for="DepartureDate" class="form-control" type="datetime-local" />
+                                <span asp-validation-for="DepartureDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Arrival" class="form-label">Destination</label>
+                                <input asp-for="Arrival" class="form-control" />
+                                <span asp-validation-for="Arrival" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ArrivalDate" class="form-label">Arrival date</label>
+                                <input asp-for="ArrivalDate" class="form-control" type="datetime-local" />
+                                <span asp-validation-for="ArrivalDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Price" class="form-label">Price (€)</label>
+                                <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Capacity" class="form-label">Capacity</label>
+                                <input asp-for="Capacity" class="form-control" type="number" min="1" />
+                                <span asp-validation-for="Capacity" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Image" class="form-label">Image URL</label>
+                            <input asp-for="Image" class="form-control" />
+                            <span asp-validation-for="Image" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="newOwner" class="form-label">Add an owner</label>
+                            <input type="text" id="newOwner" name="newOwner" class="form-control" placeholder="Login" />
+                            <small class="text-muted">Enter the login of the person to add as co-owner.</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Current owners</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        @foreach (var owner in Model.owners ?? new List<string>())
+                        {
+                            <li class="list-group-item">@owner</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

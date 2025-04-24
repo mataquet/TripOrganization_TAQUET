@@ -1,0 +1,67 @@
+﻿@model IEnumerable<TripOrganization_TAQUET.Models.Trips>
+
+@{
+	ViewData["Title"] = "Hub";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h3>Your journeys</h3>
+    </div>
+    <div class="col-auto">
+        <a asp-controller="Trips" asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus"></i> Create a journey
+        </a>
+        <a asp-controller="Trips" asp-action="UpcomingTrips" class="btn btn-primary">
+            <i class="bi bi-plus"></i> Upcoming trips
+        </a>
+    </div>
+    @if (Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var trip in Model)
+            {
+                <div class="col">
+                    <div class="card h-100">
+                        @if (!string.IsNullOrEmpty(trip.Image))
+                        {
+                            <img src="@trip.Image" class="card-img-top" alt="@trip.Name">
+                        }
+                        else
+                        {
+                            <img src="/images/default-trip.jpg" class="card-img-top" alt="Default image" />
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@trip.Name</h5>
+                            <p class="card-text text-truncate">@trip.Description</p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    Du @trip.DepartureDate.ToString("dd/MM/yyyy") au @trip.ArrivalDate.ToString("dd/MM/yyyy")
+                                </small>
+                            </p>
+                            <p class="card-text">
+                                <strong>Price:</strong> @trip.Price €
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <a asp-controller="Trips" asp-action="Details" asp-route-id="@trip.Id" class="btn btn-sm btn-outline-primary">
+                                Details
+                            </a>
+                            <form asp-controller="Trips" asp-action="Leave" asp-route-id="@trip.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    Unsuscribe
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            You are not registered for any trip yet. <a asp-controller="Trips" asp-action="UpcomingTrips">Find available trips</a> to register for.
+        </div>
+    }
+</div>
